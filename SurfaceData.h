@@ -1,0 +1,4 @@
+#ifndef SURFACEREADER_H
+#define SURFACEREADER_H
+
+#endif // SURFACEREADER_H
