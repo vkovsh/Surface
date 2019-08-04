@@ -24,8 +24,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        MainWindow.cpp \
+        SurfaceData.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += \
+    MainWindow.h \
+    RetCode.h \
+    SurfaceData.h
 
 FORMS    += mainwindow.ui

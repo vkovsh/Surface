@@ -4,28 +4,49 @@
 #include <QtOpenGL>
 #include <QTimer>
 
+#include "SurfaceData.h"
+
 class MainWindow : public QGLWidget
 {
     Q_OBJECT
 
 public:
-    MainWindow(int x, int y, int width, int height, QWidget* parent = 0);
+    MainWindow(int x, int y, int width, int height, const char* filename, QWidget* parent = nullptr);
+
+public:
+    RetCode loadTopographyMap();
+
+public:
+    struct Vector3D
+    {
+        double x;
+        double y;
+        double z;
+    };
 
 private:
-    QRect   _windowParams;
-    double _radial;
-    double _zenit;
-    double _azimut;
-
-    int geese_size;
-    int gdx, gdy;
-    int cax, cay, cbx, cby;
-    bool singling;
+    QRect       _windowParams;
+    SurfaceData _data;
+    QByteArray _filename;
 
 private:
-    void dekartToSphere(QVector3D& vertex);
+    double _topWidth = 0;
+    double _topHeight = 0;
+
+private:
+    int _centerX;
+    int _centerY;
+
+private:
+    int _cax;
+    int _cay;
+    int _cbx;
+    int _cby;
+    bool _singling;
+
+private:
+    void dekartToSphere(Vector3D& vertex);
     void self_cursor();
-//    void setGeometry()
 
 private:
     void initializeGL();
@@ -33,15 +54,14 @@ private:
     void paintGL();
 
 private:
-    void keyPressEvent(QKeyEvent *ke);
-    void mouseMoveEvent(QMouseEvent *me);
-    void mousePressEvent(QMouseEvent *me);
-    void mouseReleaseEvent(QMouseEvent *me);
+    void keyPressEvent(QKeyEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void mousePressEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
 
 private:
     void singling_lb();
     void graph();
-
 
 protected slots:
     void geese_coord();

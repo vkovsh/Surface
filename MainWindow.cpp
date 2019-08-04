@@ -1,15 +1,16 @@
-#include "mainwindow.h"
+#include "MainWindow.h"
 
-MainWindow::MainWindow(int x, int y, int width, int height, QWidget* parent) :
+MainWindow::MainWindow(int x, int y, int width, int height, const char* filename, QWidget* parent) :
     QGLWidget(parent),
-    _windowParams(QRect(x, y, width, height))
+    _windowParams(QRect(x, y, width, height)),
+    _filename(QByteArray(filename))
 {
-    gdx = 300;
-    gdy = 300;
+    _centerX = 300;
+    _centerY = 300;
 
     setGeometry(_windowParams);
-    geese_size=30;
-    singling=false;
+//    geese_size=30;
+    _singling=false;
     geese_coord();
     setFormat(QGLFormat(QGL::DoubleBuffer));
     glDepthFunc(GL_LEQUAL);
@@ -45,7 +46,7 @@ void MainWindow::paintGL()
 
     graph(); // Рисуем объект
 
-    if(singling==true){ singling_lb(); } // Рисуем выделение, если оно есть
+    if (_singling == true) { singling_lb(); } // Рисуем выделение, если оно есть
 
     self_cursor(); // Загружаем наш курсор
 
@@ -74,30 +75,31 @@ void MainWindow::mouseMoveEvent(QMouseEvent *me)
 
 void MainWindow::mousePressEvent(QMouseEvent *me)
 {
-    if(me->button()==Qt::LeftButton){
-        if(me->x()>gdx&&me->x()<gdx+geese_size){
-            if(me->y()>gdy&&me->y()<gdy+geese_size){
-                geese_coord();
-            }
-        }
-    }
+//    if(me->button()==Qt::LeftButton){
+//        if(me->x()>gdx&&me->x()<gdx+geese_size){
+//            if(me->y()>gdy&&me->y()<gdy+geese_size){
+//                geese_coord();
+//            }
+//        }
+//    }
 
-    if(me->button()==Qt::LeftButton){
-        singling=true;
-        cbx=me->x();
-        cby=me->y();
-        updateGL();
-    } else {
-        singling=false;
-    }
-    updateGL();
+//    if(me->button()==Qt::LeftButton){
+//        singling=true;
+//        cbx=me->x();
+//        cby=me->y();
+//        updateGL();
+//    } else {
+//        singling=false;
+//    }
+//    updateGL();
 }
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *me)
 {
     // Если отпускаем левую кнопку мыши - удалить выделение
-    if(singling==true&&me->button()==Qt::LeftButton){
-        singling=false;
+    if (_singling == true && me->button() == Qt::LeftButton)
+    {
+        _singling = false;
     }
     updateGL();
 }
@@ -117,8 +119,7 @@ void MainWindow::self_cursor()
 void MainWindow::singling_lb()
 {
     glBegin(GL_POLYGON);
-        glColor4f(0,1,0, 0.25);// Цвет выделенной области
-        // Координаты выделенной области
+        glColor4f(0,1,0, 0.25);
         glVertex2f(cbx, cby);
         glVertex2f(cax, cby);
         glVertex2f(cax, cay);
@@ -130,7 +131,8 @@ void MainWindow::geese_coord()
 {
 //    gdx = (rand() % (_windowParams.width() - geese_size * 2)) + geese_size;
 //    gdy = (rand() % (_windowParams.height() - geese_size * 2)) + geese_size;
-//    qDebug() << gdx + ", "+ gdy;
+    _centerX++;
+    _centerY++;
     updateGL();
 }
 
@@ -147,29 +149,69 @@ void MainWindow::graph()
 //    glEnd();
     glBegin(GL_LINES);
         glColor3f(1, 0, 0);
-        glVertex2f(gdx, gdy);
-        glVertex2f(gdx, gdy - 300);
+        glVertex2f(_centerX, _centerY);
+        glVertex2f(_centerX, _centerY - 300);
         glColor3f(0, 1, 0);
-        glVertex2f(gdx, gdy);
-        glVertex2f(gdx + 300, gdy);
+        glVertex2f(_centerX, _centerY);
+        glVertex2f(_centerX + 300, _centerY);
         glColor3f(0, 0, 1);
-        glVertex2f(gdx, gdy);
-        glVertex2f(gdx - 150, gdy + 300);
+        glVertex2f(_centerX, _centerY);
+        glVertex2f(_centerX - 150, _centerY + 300);
     glEnd();
-    glFlush();
+
+//    int size = 400;
+//    glBegin(GL_QUADS);
+//        glColor3f(1, 0, 0);
+//         // левая грань
+//         glVertex3f( -size / 2, -size / 2, -size / 2);
+//         glVertex3f( -size / 2,  size / 2, -size / 2);
+//         glVertex3f( -size / 2,  size / 2,  size / 2);
+//         glVertex3f( -size / 2, -size / 2,  size / 2);
+//         // правая грань
+//         glVertex3f(  size / 2, -size / 2, -size / 2);
+//         glVertex3f(  size / 2, -size / 2,  size / 2);
+//         glVertex3f(  size / 2,  size / 2,  size / 2);
+//         glVertex3f(  size / 2,  size / 2, -size / 2);
+//         // нижняя грань
+//         glVertex3f( -size / 2, -size / 2, -size / 2);
+//         glVertex3f( -size / 2, -size / 2,  size / 2);
+//         glVertex3f(  size / 2, -size / 2,  size / 2);
+//         glVertex3f(  size / 2, -size / 2, -size / 2);
+//         // верхняя грань
+//         glVertex3f( -size / 2, size / 2, -size / 2);
+//         glVertex3f( -size / 2, size / 2,  size / 2);
+//         glVertex3f(  size / 2, size / 2,  size / 2);
+//         glVertex3f(  size / 2, size / 2, -size / 2);
+//         // задняя грань
+//         glVertex3f( -size / 2, -size / 2, -size / 2);
+//         glVertex3f(  size / 2, -size / 2, -size / 2);
+//         glVertex3f(  size / 2,  size / 2, -size / 2);
+//         glVertex3f( -size / 2,  size / 2, -size / 2);
+//         // передняя грань
+//         glVertex3f( -size / 2, -size / 2,  size / 2);
+//         glVertex3f(  size / 2, -size / 2,  size / 2);
+//         glVertex3f(  size / 2,  size / 2,  size / 2);
+//         glVertex3f( -size / 2,  size / 2,  size / 2);
+//    glEnd();
 }
 
-void dekartToSphere(QVector3D & vertex)
+void MainWindow::dekartToSphere(Vector3D& vertex)
 {
-    const double x = vertex.x();
-    const double y = vertex.y();
-    const double z = vertex.z();
+    const double x = vertex.x;
+    const double y = vertex.y;
+    const double z = vertex.z;
     {
         const double x2 = x * x;
         const double y2 = y * y;
         const double z2 = z * z;
-        vertex.setX(sqrt(x2 + y2 + z2));
-        vertex.setY(atan(sqrt(x2 + y2) / z));
-        vertex.setZ(atan(y / x));
+        vertex.x = sqrt(x2 + y2 + z2);
+        vertex.y = atan(sqrt(x2 + y2) / z);
+        vertex.z = atan(y / x);
     }
+}
+
+RetCode MainWindow::loadTopographyMap()
+{
+    _data.FlushSurface();
+    return _data.ReadSurface(_filename.data());
 }
