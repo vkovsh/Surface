@@ -35,20 +35,30 @@ void MainWindow::resizeGL(int nWidth, int nHeight)
 
 void MainWindow::paintGL()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // чистим буфер изображения и буфер глубины
-    glMatrixMode(GL_PROJECTION); // устанавливаем матрицу
-    glLoadIdentity(); // загружаем матрицу
-    glOrtho(0, _windowParams.width(), _windowParams.height(), 0, 1, 0); // подготавливаем плоскости для матрицы
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    GLfloat IDENTITY_MATRIX[16] = {
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1
+    };
+
+//    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(IDENTITY_MATRIX);
+//    glLoadIdentity();
+//    glOrtho(0, _windowParams.width(), _windowParams.height(), 0, 1, 0);
+    glOrtho(-1, 1, -1, 1, -1, 1);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     qglColor(Qt::white);
 
-    graph(); // Рисуем объект
+    graph();
 
-    if (_singling == true) { singling_lb(); } // Рисуем выделение, если оно есть
+    if (_singling == true) { singlingLb(); }
 
-    self_cursor(); // Загружаем наш курсор
+    selfCursor();
 
     swapBuffers();
 }
@@ -67,9 +77,8 @@ void MainWindow::keyPressEvent(QKeyEvent *ke)
 
 void MainWindow::mouseMoveEvent(QMouseEvent *me)
 {
-    // Получаем координаты курсора
-    cax=me->x();
-    cay=me->y();
+    _cax = me->x();
+    _cay = me->y();
     updateGL();
 }
 
@@ -104,36 +113,33 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *me)
     updateGL();
 }
 
-void MainWindow::self_cursor()
+void MainWindow::selfCursor()
 {
     glBegin(GL_POLYGON);
-        glColor3f(1,0,0);// Цвет курсора
-        // Координаты курсора
-        glVertex2f(cax, cay);
-        glVertex2f(cax+20, cay+20);
-        glVertex2f(cax+8, cay+20);
-        glVertex2f(cax, cay+30);
+        glColor3f(1,0,0);
+        glVertex2f(_cax, _cay);
+        glVertex2f(_cax + 20, _cay + 20);
+        glVertex2f(_cax + 8, _cay + 20);
+        glVertex2f(_cax, _cay + 30);
     glEnd();
 }
 
-void MainWindow::singling_lb()
+void MainWindow::singlingLb()
 {
     glBegin(GL_POLYGON);
-        glColor4f(0,1,0, 0.25);
-        glVertex2f(cbx, cby);
-        glVertex2f(cax, cby);
-        glVertex2f(cax, cay);
-        glVertex2f(cbx, cay);
+        glColor4f(0, 1, 0, 0.25);
+        glVertex2f(_cbx, _cby);
+        glVertex2f(_cax, _cby);
+        glVertex2f(_cax, _cay);
+        glVertex2f(_cbx, _cay);
     glEnd();
 }
 
 void MainWindow::geese_coord()
 {
-//    gdx = (rand() % (_windowParams.width() - geese_size * 2)) + geese_size;
-//    gdy = (rand() % (_windowParams.height() - geese_size * 2)) + geese_size;
-    _centerX++;
-    _centerY++;
-    updateGL();
+//    _centerX++;
+//    _centerY++;
+//    updateGL();
 }
 
 
@@ -147,51 +153,92 @@ void MainWindow::graph()
 //        glVertex2f(gdx+geese_size, gdy+geese_size);
 //        glVertex2f(gdx, gdy+geese_size);
 //    glEnd();
-    glBegin(GL_LINES);
-        glColor3f(1, 0, 0);
-        glVertex2f(_centerX, _centerY);
-        glVertex2f(_centerX, _centerY - 300);
-        glColor3f(0, 1, 0);
-        glVertex2f(_centerX, _centerY);
-        glVertex2f(_centerX + 300, _centerY);
-        glColor3f(0, 0, 1);
-        glVertex2f(_centerX, _centerY);
-        glVertex2f(_centerX - 150, _centerY + 300);
+//    glBegin(GL_LINES);
+//        glColor3f(0, 0, 0);
+//        glVertex2f(-1.0f, 0.0f);
+//        glVertex2f(1.0f, 0.0f);
+////        glVertex2f(_centerX, _centerY);
+////        glVertex2f(_centerX, _centerY - 300);
+////        glColor3f(0, 1, 0);
+////        glVertex2f(_centerX, _centerY);
+////        glVertex2f(_centerX + 300, _centerY);
+////        glColor3f(0, 0, 1);
+////        glVertex2f(_centerX, _centerY);
+////        glVertex2f(_centerX - 150, _centerY + 300);
+//    glEnd();
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glColor3f(1, 0.0f, 0.0f); // sets color to black.
+
+    glLoadIdentity();
+//    glTranslatef(0.5f, 0.5f, 0.5f);
+
+    static float angle = 0.0f;
+    angle += 1.0f;
+    glRotatef(angle, 1.0f, 1.0f, 1.0f);
+//    glTranslatef(vec_vehicle_position_.x, vec_vehicle_position_.y, 0);
+    glBegin(GL_QUADS);
+        glColor3f(0.5f, 0.3f, 0.6f);
+//        glColor3f((rand() % 0xff) / (double)0xff , (rand() % 0xff) / (double)0xff, (rand() % 0xff) / (double)0xff);
+    // правая грань
+//        glColor3f((rand() % 0xff) / (double)0xff , (rand() % 0xff) / (double)0xff, (rand() % 0xff) / (double)0xff);
+        glVertex3f(0.5, -0.5, -0.5);
+        glVertex3f(0.5, -0.5, 0.5);
+        glVertex3f(0.5, 0.5, 0.5);
+        glVertex3f(0.5, 0.5, -0.5);
+    // нижняя грань
+//        glColor3f((rand() % 0xff) / (double)0xff , (rand() % 0xff) / (double)0xff, (rand() % 0xff) / (double)0xff);
+        glVertex3f(-0.5, -0.5, -0.5);
+        glVertex3f(-0.5, -0.5, 0.5);
+        glVertex3f(0.5, -0.5, 0.5);
+        glVertex3f(0.5, -0.5, -0.5);
+    // верхняя грань
+//        glColor3f((rand() % 0xff) / (double)0xff , (rand() % 0xff) / (double)0xff, (rand() % 0xff) / (double)0xff);
+        glVertex3f(-0.5, 0.5, -0.5);
+        glVertex3f(-0.5, 0.5, 0.5);
+        glVertex3f(0.5, 0.5, 0.5);
+        glVertex3f(0.5, 0.5, -0.5);
+    // левая грань
+//        glColor3f((rand() % 0xff) / (double)0xff , (rand() % 0xff) / (double)0xff, (rand() % 0xff) / (double)0xff);
+        glVertex3f(-0.5, -0.5, -0.5);
+        glVertex3f(-0.5, 0.5, -0.5);
+        glVertex3f(-0.5, 0.5, 0.5);
+        glVertex3f(-0.5, -0.5,  0.5);
+    // задняя грань
+//        glColor3f((rand() % 0xff) / (double)0xff , (rand() % 0xff) / (double)0xff, (rand() % 0xff) / (double)0xff);
+        glVertex3f(-0.5, -0.5, -0.5);
+        glVertex3f(0.5, -0.5, -0.5);
+        glVertex3f(0.5, 0.5, -0.5);
+        glVertex3f(-0.5, 0.5, -0.5);
+    // передняя грань
+//        glColor3f((rand() % 0xff) / (double)0xff , (rand() % 0xff) / (double)0xff, (rand() % 0xff) / (double)0xff);
+        glVertex3f(-0.5, -0.5, 0.5);
+        glVertex3f(0.5, -0.5, 0.5);
+        glVertex3f(0.5, 0.5, 0.5);
+        glVertex3f(-0.5, 0.5, 0.5);
     glEnd();
 
-//    int size = 400;
+    glBegin(GL_LINES);
+    //ox
+        glColor3f(1.0f, 0.0f, 0.0f);
+        glVertex3f(-1.0f, 0.0f, 0.0f);
+        glVertex3f(1.0f, 0.0f, 0.0f);
+    //oy
+        glColor3f(0.0f, 1.0f, 0.0f);
+        glVertex3f(0.0f, -1.0f, 0.0f);
+        glVertex3f(0.0f, 1.0f, 0.0f);
+    //oz
+        glColor3f(0, 0, 1);
+        glVertex3f(0.0f, 0.0f, -1.0f);
+        glVertex3f(0.0f, 0.0f, 1.0f);
+    glEnd();
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//    glColor3f(0.0f, 0.0f, 0.0f); // sets color to black.
 //    glBegin(GL_QUADS);
-//        glColor3f(1, 0, 0);
-//         // левая грань
-//         glVertex3f( -size / 2, -size / 2, -size / 2);
-//         glVertex3f( -size / 2,  size / 2, -size / 2);
-//         glVertex3f( -size / 2,  size / 2,  size / 2);
-//         glVertex3f( -size / 2, -size / 2,  size / 2);
-//         // правая грань
-//         glVertex3f(  size / 2, -size / 2, -size / 2);
-//         glVertex3f(  size / 2, -size / 2,  size / 2);
-//         glVertex3f(  size / 2,  size / 2,  size / 2);
-//         glVertex3f(  size / 2,  size / 2, -size / 2);
-//         // нижняя грань
-//         glVertex3f( -size / 2, -size / 2, -size / 2);
-//         glVertex3f( -size / 2, -size / 2,  size / 2);
-//         glVertex3f(  size / 2, -size / 2,  size / 2);
-//         glVertex3f(  size / 2, -size / 2, -size / 2);
-//         // верхняя грань
-//         glVertex3f( -size / 2, size / 2, -size / 2);
-//         glVertex3f( -size / 2, size / 2,  size / 2);
-//         glVertex3f(  size / 2, size / 2,  size / 2);
-//         glVertex3f(  size / 2, size / 2, -size / 2);
-//         // задняя грань
-//         glVertex3f( -size / 2, -size / 2, -size / 2);
-//         glVertex3f(  size / 2, -size / 2, -size / 2);
-//         glVertex3f(  size / 2,  size / 2, -size / 2);
-//         glVertex3f( -size / 2,  size / 2, -size / 2);
-//         // передняя грань
-//         glVertex3f( -size / 2, -size / 2,  size / 2);
-//         glVertex3f(  size / 2, -size / 2,  size / 2);
-//         glVertex3f(  size / 2,  size / 2,  size / 2);
-//         glVertex3f( -size / 2,  size / 2,  size / 2);
+//            glVertex2f(-0.25f, 0.25f); // vertex 1
+//            glVertex2f(-0.5f, -0.25f); // vertex 2
+//            glVertex2f(0.5f, -0.25f); // vertex 3
+//            glVertex2f(0.25f, 0.25f); // vertex 4
 //    glEnd();
 }
 

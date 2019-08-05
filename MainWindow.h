@@ -2,7 +2,7 @@
 
 #include <QGLWidget>
 #include <QtOpenGL>
-#include <QTimer>
+//#include <QTimer>
 
 #include "SurfaceData.h"
 
@@ -46,7 +46,7 @@ private:
 
 private:
     void dekartToSphere(Vector3D& vertex);
-    void self_cursor();
+    void selfCursor();
 
 private:
     void initializeGL();
@@ -60,7 +60,7 @@ private:
     void mouseReleaseEvent(QMouseEvent *e);
 
 private:
-    void singling_lb();
+    void singlingLb();
     void graph();
 
 protected slots:
