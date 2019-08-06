@@ -71,8 +71,10 @@ void MainWindow::paintGL()
         for (const SurfaceData::TopValue& top : row)
         {
             DecartPoint3D bottomLeft = {x, 0, z};
-            GLfloat color[4] = {rand() % 256 / (double)256, rand() % 256 / (double)256, rand() % 256 / (double)256};
-            prysm( bottomLeft, _cellWidth, top, _cellDepth, color);
+//            const GLfloat color[3] = {rand() % 256 / (GLfloat)256, rand() % 256 / (GLfloat)256, rand() % 256 / (GLfloat)256};
+//            const GLfloat color[3] = {1, 0, 0};
+            const GLfloat color[3] = {0.3164, 0.2031, 0.246};
+            prysm(bottomLeft, _cellWidth, top, _cellDepth, (GLfloat*)color);
             x += _cellWidth;
         }
         z += _cellDepth;
@@ -172,14 +174,21 @@ void MainWindow::prysm(const MainWindow::DecartPoint3D& bottomLeft,
                        double depth,
                        const GLfloat* color)
 {
-    glColor3fv(color);
+//    glColor3fv(color);
     glBegin(GL_QUADS);
 
+    GLfloat color2[3];
+//    qDebug() << height << _maxHeight;
+    color2[0] = 0.9023 * (height / _maxHeight);
+    color2[1] = 0.8125 * (height / _maxHeight);
+    color2[2] = 0.8476 * (height / _maxHeight);
     // правая грань
     {
         DecartPoint3D customBottomLeft(bottomLeft.x + width, bottomLeft.y, bottomLeft.z);
+        glColor3fv(color);
         glVertex3f(customBottomLeft.x, customBottomLeft.y, bottomLeft.z);
         glVertex3f(customBottomLeft.x, customBottomLeft.y, bottomLeft.z + depth);
+        glColor3fv(color2);
         glVertex3f(customBottomLeft.x, customBottomLeft.y + height, bottomLeft.z + depth);
         glVertex3f(customBottomLeft.x, customBottomLeft.y + height, bottomLeft.z);
     }
@@ -187,6 +196,7 @@ void MainWindow::prysm(const MainWindow::DecartPoint3D& bottomLeft,
     // нижняя грань
     {
         DecartPoint3D customBottomLeft(bottomLeft.x, bottomLeft.y, bottomLeft.z);
+        glColor3fv(color);
         glVertex3f(customBottomLeft.x, customBottomLeft.y, customBottomLeft.z);
         glVertex3f(customBottomLeft.x, customBottomLeft.y, customBottomLeft.z + depth);
         glVertex3f(customBottomLeft.x + width, customBottomLeft.y, customBottomLeft.z + depth);
@@ -196,6 +206,7 @@ void MainWindow::prysm(const MainWindow::DecartPoint3D& bottomLeft,
     // верхняя грань
     {
         DecartPoint3D customBottomLeft(bottomLeft.x, bottomLeft.y + height, bottomLeft.z);
+        glColor3fv(color2);
         glVertex3f(customBottomLeft.x, customBottomLeft.y, customBottomLeft.z);
         glVertex3f(customBottomLeft.x, customBottomLeft.y, customBottomLeft.z + depth);
         glVertex3f(customBottomLeft.x + width, customBottomLeft.y, customBottomLeft.z + depth);
@@ -205,8 +216,10 @@ void MainWindow::prysm(const MainWindow::DecartPoint3D& bottomLeft,
     // левая грань
     {
         DecartPoint3D customBottomLeft(bottomLeft.x, bottomLeft.y, bottomLeft.z);
+        glColor3fv(color);
         glVertex3f(customBottomLeft.x, customBottomLeft.y, customBottomLeft.z);
         glVertex3f(customBottomLeft.x, customBottomLeft.y + height, customBottomLeft.z);
+        glColor3fv(color2);
         glVertex3f(customBottomLeft.x, customBottomLeft.y + height, customBottomLeft.z + depth);
         glVertex3f(customBottomLeft.x, customBottomLeft.y, customBottomLeft.z + depth);
     }
@@ -214,8 +227,10 @@ void MainWindow::prysm(const MainWindow::DecartPoint3D& bottomLeft,
     // задняя грань
     {
         DecartPoint3D customBottomLeft(bottomLeft.x, bottomLeft.y, bottomLeft.z);
+        glColor3fv(color);
         glVertex3f(customBottomLeft.x, customBottomLeft.y, customBottomLeft.z);
         glVertex3f(customBottomLeft.x + width, customBottomLeft.y, customBottomLeft.z);
+        glColor3fv(color2);
         glVertex3f(customBottomLeft.x + width, customBottomLeft.y + height, customBottomLeft.z);
         glVertex3f(customBottomLeft.x, customBottomLeft.y + height, customBottomLeft.z);
     }
@@ -223,8 +238,10 @@ void MainWindow::prysm(const MainWindow::DecartPoint3D& bottomLeft,
     // передняя грань
     {
         DecartPoint3D customBottomLeft(bottomLeft.x, bottomLeft.y, bottomLeft.z + depth);
+        glColor3fv(color);
         glVertex3f(customBottomLeft.x, customBottomLeft.y, customBottomLeft.z);
         glVertex3f(customBottomLeft.x + width, customBottomLeft.y, customBottomLeft.z);
+        glColor3fv(color2);
         glVertex3f(customBottomLeft.x + width, customBottomLeft.y + height, customBottomLeft.z);
         glVertex3f(customBottomLeft.x, customBottomLeft.y + height, customBottomLeft.z);
     }
@@ -279,40 +296,42 @@ RetCode MainWindow::loadTopographyMap()
         _cellWidth = xAbs / _data.columnCount();
         _cellDepth = zAbs / _data.rowCount();
     }
-    double minHeight;
-    double maxHeight;
-    _data.getTopValue(0, 0, minHeight);
-    _data.getTopValue(0, 0, maxHeight);
+//    double minHeight;
+//    double maxHeight;
+    _data.getTopValue(0, 0, _minHeight);
+    _data.getTopValue(0, 0, _maxHeight);
     for (const SurfaceData::TopRow& row : _data.getData())
     {
         for (const SurfaceData::TopValue& top : row)
         {
-            if (top > maxHeight)
+            if (top > _maxHeight)
             {
-                maxHeight = top;
+                _maxHeight = top;
             }
-            else if (top < minHeight)
+            else if (top < _minHeight)
             {
-                minHeight = top;
+                _minHeight = top;
             }
         }
     }
-    qDebug() << maxHeight << minHeight;
+    qDebug() << "[" << _maxHeight << "]" << "[" << _minHeight << "]";
 
     double step;
-    if (maxHeight >= 0 && minHeight >= 0)
-        step = _Y_MAX / maxHeight;
-    else if (maxHeight < 0 && minHeight < 0)
-        step = abs(_Y_MIN / minHeight);
+    if (_maxHeight >= 0 && _minHeight >= 0)
+        step = _Y_MAX / _maxHeight;
+    else if (_maxHeight < 0 && _minHeight < 0)
+        step = abs(_Y_MIN / _minHeight);
     else
-        step = abs(_Y_MAX - _Y_MIN) / abs(maxHeight - minHeight);
+        step = abs(_Y_MAX - _Y_MIN) / abs(_maxHeight - _minHeight);
 
-    qDebug() << abs(_Y_MAX - _Y_MIN) << abs(maxHeight - minHeight);
+    qDebug() << abs(_Y_MAX - _Y_MIN) << abs(_maxHeight - _minHeight);
     qDebug() << step;
 
-    for (int i = 0; i < _data.rowCount(); ++i)
+    _maxHeight *= step;
+    for (int i = 0; i < _data.rowCount() - 1; ++i)
     {
-        for (int j = 0; j < _data.columnCount(); ++j)
+        qDebug() << i;
+        for (int j = 0; j < _data.columnCount() + 1; ++j)
         {
             SurfaceData::TopValue val;
             _data.getTopValue(i, j, val);

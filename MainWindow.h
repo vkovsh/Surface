@@ -66,6 +66,8 @@ private:
 private:
     double _cellWidth = 0;
     double _cellDepth = 0;
+    double _minHeight = 0;
+    double _maxHeight = 0;
 
 private:
     SpherePoint3D dekartToSphere(DecartPoint3D& vertex);
