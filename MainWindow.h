@@ -17,11 +17,22 @@ public:
     RetCode loadTopographyMap();
 
 public:
-    struct Vector3D
+    struct DecartPoint3D
     {
+        DecartPoint3D(double ex, double ey, double ez): x(ex), y(ey), z(ez){}
+        ~DecartPoint3D(){}
         double x;
         double y;
         double z;
+    };
+
+    struct SpherePoint3D
+    {
+        SpherePoint3D(double er, double ze, double az): r(er), zenit(ze), azimut(az){}
+        SpherePoint3D(){}
+        double r;
+        double zenit;
+        double azimut;
     };
 
 private:
@@ -45,7 +56,20 @@ private:
     bool _singling;
 
 private:
-    void dekartToSphere(Vector3D& vertex);
+    const double _X_MIN = -0.6;
+    const double _X_MAX = 0.6;
+    const double _Y_MIN = -0.6;
+    const double _Y_MAX = 0.6;
+    const double _Z_MIN = -0.6;
+    const double _Z_MAX = 0.6;
+
+private:
+    double _cellWidth = 0;
+    double _cellDepth = 0;
+
+private:
+    SpherePoint3D dekartToSphere(DecartPoint3D& vertex);
+    DecartPoint3D sphereToDekart(SpherePoint3D& vertex);
     void selfCursor();
 
 private:
@@ -62,6 +86,11 @@ private:
 private:
     void singlingLb();
     void graph();
+    void prysm(const DecartPoint3D& bottomLeft,
+               const double width,
+               const double height,
+               const double depth,
+               const GLfloat* color);
 
 protected slots:
     void geese_coord();

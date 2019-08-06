@@ -42,7 +42,7 @@ RetCode SurfaceData::ReadSurface(const char* filename)
         {
             rowsTxt.pop_back();
         }
-        _rowCount = static_cast<size_t>(rowsTxt.size()) - 1;
+        _rowCount = static_cast<size_t>(rowsTxt.size());
         for (const QByteArray& rowTxt : rowsTxt)
         {
             TopRow row = TopRow();
@@ -71,14 +71,14 @@ RetCode SurfaceData::ReadSurface(const char* filename)
         }
     }
 
-    for (const TopRow& row : _topArray)
-    {
-        for (const TopValue& top : row)
-        {
-            printf("%3d ", top);
-        }
-        std::cout << "\n";
-    }
+//    for (const TopRow& row : _topArray)
+//    {
+//        for (const TopValue& top : row)
+//        {
+//            printf("%d ", top);
+//        }
+//        std::cout << "\n";
+//    }
     return RetCode::RET_CODE_SUCCESS;
 }
 
@@ -100,5 +100,10 @@ RetCode SurfaceData::getTopValue(const size_t rowIndex, const size_t columnIndex
 
     value = row.at(columnIndex);
     return RetCode::RET_CODE_SUCCESS;
+}
+
+void SurfaceData::setTopValue(const size_t rowIndex, const size_t columnIndex, const TopValue value)
+{
+    _topArray.at(rowIndex).at(columnIndex) = value;
 }
 
