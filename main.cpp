@@ -19,8 +19,5 @@ int main(int argc, char** argv)
     window.show();
     window.setMouseTracking(true);window.setCursor(QCursor(Qt::BlankCursor));
 
-//    SurfaceData reader("../Surface/test_maps/10-2.fdf");
-//    qDebug() << reader.ReadSurface().toInt();
-//    return 0;
     return app.exec();
 }

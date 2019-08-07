@@ -48,7 +48,7 @@ void MainWindow::paintGL()
     glLoadMatrixf(IDENTITY_MATRIX);
     glLoadIdentity();
 //    glOrtho(0, _windowParams.width(), _windowParams.height(), 0, 1, 0);
-    glOrtho(-1, 1, -1, 1, -1, 1);
+    glOrtho(-this->_zoom, this->_zoom, -this->_zoom, this->_zoom, -this->_zoom, this->_zoom);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -68,25 +68,18 @@ void MainWindow::paintGL()
     for (const SurfaceData::TopRow& row : _data.getData())
     {
         double x = _X_MIN;
-        for (const SurfaceData::TopValue& top : row)
+        for (const SurfaceData::TopInfo& top : row)
         {
             DecartPoint3D bottomLeft = {x, 0, z};
-//            const GLfloat color[3] = {rand() % 256 / (GLfloat)256, rand() % 256 / (GLfloat)256, rand() % 256 / (GLfloat)256};
-//            const GLfloat color[3] = {1, 0, 0};
-            const GLfloat color[3] = {0.3164, 0.2031, 0.246};
-            prysm(bottomLeft, _cellWidth, top, _cellDepth, (GLfloat*)color);
+//            const GLfloat color[3] = {(float)(rand()%256)/256, 0, 0};
+            const GLfloat* color = top.topColor;
+            prysm(bottomLeft, _cellWidth, top.relValue, _cellDepth, color);
             x += _cellWidth;
         }
         z += _cellDepth;
     }
-//    DecartPoint3D bottomLeft = {-0.6, 0, -0.6};
-//    GLfloat color[4] = {0.6, 0.5, 0};
-//    prysm(bottomLeft, 1.2, 0.6, 1.2, color);
-
     if (_singling == true) { singlingLb(); }
-
     selfCursor();
-
     swapBuffers();
 }
 
@@ -103,8 +96,14 @@ void MainWindow::keyPressEvent(QKeyEvent *ke)
 
 void MainWindow::mouseMoveEvent(QMouseEvent *me)
 {
-    _cax = me->x();
-    _cay = me->y();
+//    _cax = me->x();
+//    _cay = me->y();
+//    updateGL();
+}
+
+void MainWindow::wheelEvent(QWheelEvent *me)
+{
+    _zoom += (me->delta() > 0) ? 0.1 : -0.1;
     updateGL();
 }
 
@@ -179,9 +178,9 @@ void MainWindow::prysm(const MainWindow::DecartPoint3D& bottomLeft,
 
     GLfloat color2[3];
 //    qDebug() << height << _maxHeight;
-    color2[0] = 0.9023 * (height / _maxHeight);
-    color2[1] = 0.8125 * (height / _maxHeight);
-    color2[2] = 0.8476 * (height / _maxHeight);
+    color2[0] = 1 * (height / _maxHeight);
+    color2[1] = 1 * (height / _maxHeight);
+    color2[2] = 1 * (height / _maxHeight);
     // правая грань
     {
         DecartPoint3D customBottomLeft(bottomLeft.x + width, bottomLeft.y, bottomLeft.z);
@@ -298,24 +297,22 @@ RetCode MainWindow::loadTopographyMap()
     }
 //    double minHeight;
 //    double maxHeight;
-    _data.getTopValue(0, 0, _minHeight);
-    _data.getTopValue(0, 0, _maxHeight);
+    _data.getTopRelValue(0, 0, _minHeight);
+    _data.getTopRelValue(0, 0, _maxHeight);
     for (const SurfaceData::TopRow& row : _data.getData())
     {
-        for (const SurfaceData::TopValue& top : row)
+        for (const SurfaceData::TopInfo& top : row)
         {
-            if (top > _maxHeight)
+            if (top.absValue > _maxHeight)
             {
-                _maxHeight = top;
+                _maxHeight = top.absValue;
             }
-            else if (top < _minHeight)
+            else if (top.absValue < _minHeight)
             {
-                _minHeight = top;
+                _minHeight = top.absValue;
             }
         }
     }
-    qDebug() << "[" << _maxHeight << "]" << "[" << _minHeight << "]";
-
     double step;
     if (_maxHeight >= 0 && _minHeight >= 0)
         step = _Y_MAX / _maxHeight;
@@ -331,21 +328,23 @@ RetCode MainWindow::loadTopographyMap()
     for (int i = 0; i < _data.rowCount() - 1; ++i)
     {
         qDebug() << i;
-        for (int j = 0; j < _data.columnCount() + 1; ++j)
+        for (int j = 0; j < _data.columnCount() ; ++j)
         {
-            SurfaceData::TopValue val;
-            _data.getTopValue(i, j, val);
-            _data.setTopValue(i, j, val * step);
+            SurfaceData::TopAbsValue val;
+            _data.getTopAbsValue(i, j, val);
+            _data.setTopRelValue(i, j, val * step);
+            const SurfaceData::TopColor color = {0,0,1}; /*{(float)(rand()%256)/256, 0, 0};*/
+            _data.setTopColor(i, j, color);
         }
     }
 
-        for (const SurfaceData::TopRow& row : _data.getData())
-        {
-            for (const SurfaceData::TopValue& top : row)
-            {
-                printf("%f ", top);
-            }
-            printf("\n");
-        }
+//        for (const SurfaceData::TopRow& row : _data.getData())
+//        {
+//            for (const SurfaceData::TopValue& top : row)
+//            {
+//                printf("%f ", top);
+//            }
+//            printf("\n");
+//        }
     return ret;
 }

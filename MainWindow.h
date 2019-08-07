@@ -58,8 +58,8 @@ private:
 private:
     const double _X_MIN = -0.6;
     const double _X_MAX = 0.6;
-    const double _Y_MIN = -0.6;
-    const double _Y_MAX = 0.6;
+    const double _Y_MIN = -0.15;
+    const double _Y_MAX = 0.15;
     const double _Z_MIN = -0.6;
     const double _Z_MAX = 0.6;
 
@@ -68,6 +68,9 @@ private:
     double _cellDepth = 0;
     double _minHeight = 0;
     double _maxHeight = 0;
+
+private:
+    double _zoom = 1;
 
 private:
     SpherePoint3D dekartToSphere(DecartPoint3D& vertex);
@@ -84,6 +87,7 @@ private:
     void mouseMoveEvent(QMouseEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
+    void wheelEvent(QWheelEvent *e);
 
 private:
     void singlingLb();

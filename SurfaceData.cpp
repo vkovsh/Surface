@@ -60,7 +60,10 @@ RetCode SurfaceData::ReadSurface(const char* filename)
                 if (tokenTxt != "")
                 {
                     bool ok;
-                    row.push_back(tokenTxt.toInt(&ok));
+                    TopInfo info;
+                    info.absValue = tokenTxt.toInt(&ok);
+                    info.relValue = 0;
+                    row.push_back(info);
                     if (false == ok)
                     {
                         return RetCode::RET_CODE_BAD_CONTENT;
@@ -70,15 +73,6 @@ RetCode SurfaceData::ReadSurface(const char* filename)
             _topArray.push_back(row);
         }
     }
-
-//    for (const TopRow& row : _topArray)
-//    {
-//        for (const TopValue& top : row)
-//        {
-//            printf("%d ", top);
-//        }
-//        std::cout << "\n";
-//    }
     return RetCode::RET_CODE_SUCCESS;
 }
 
@@ -89,21 +83,44 @@ void SurfaceData::FlushSurface()
     _topArray.clear();
 }
 
-RetCode SurfaceData::getTopValue(const size_t rowIndex, const size_t columnIndex, SurfaceData::TopValue& value)
+RetCode SurfaceData::getTopInfo(const size_t rowIndex, const size_t columnIndex, TopInfo& value)
 {
     if (rowIndex >= _topArray.size())
+    {
         return RetCode::RET_CODE_ROW_INDEX_OVERFLOW;
+    }
 
     TopRow row = _topArray.at(rowIndex);
     if (columnIndex >= row.size())
+    {
         return RetCode::RET_CODE_COLUMN_INDEX_OVERFLOW;
+    }
 
     value = row.at(columnIndex);
     return RetCode::RET_CODE_SUCCESS;
 }
 
-void SurfaceData::setTopValue(const size_t rowIndex, const size_t columnIndex, const TopValue value)
+void SurfaceData::setTopRelValue(const size_t rowIndex, const size_t columnIndex, const TopRelValue value)
 {
-    _topArray.at(rowIndex).at(columnIndex) = value;
+    _topArray.at(rowIndex).at(columnIndex).relValue = value;
 }
 
+RetCode SurfaceData::getTopAbsValue(const size_t rowIndex, const size_t columnIndex, TopAbsValue& value)
+{
+    value = _topArray.at(rowIndex).at(columnIndex).absValue;
+    return RetCode::RET_CODE_SUCCESS;
+}
+
+RetCode SurfaceData::getTopRelValue(const size_t rowIndex, const size_t columnIndex, TopRelValue& value)
+{
+    value = _topArray.at(rowIndex).at(columnIndex).relValue;
+    return RetCode::RET_CODE_SUCCESS;
+}
+
+void SurfaceData::setTopColor(const size_t rowIndex, const size_t columnIndex, const TopColor value)
+{
+//    memcpy((void*)_topArray.at(rowIndex).at(columnIndex).topColor, (void*)value, sizeof(value)*3);
+    _topArray.at(rowIndex).at(columnIndex).topColor[0] = value[0];
+    _topArray.at(rowIndex).at(columnIndex).topColor[0] = value[1];
+    _topArray.at(rowIndex).at(columnIndex).topColor[0] = value[2];
+}
