@@ -30,6 +30,7 @@ SOURCES += main.cpp\
 HEADERS  += \
     MainWindow.h \
     RetCode.h \
-    SurfaceData.h
+    SurfaceData.h \
+    BMPFile.h
 
 FORMS    += mainwindow.ui
